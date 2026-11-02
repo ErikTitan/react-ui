@@ -577,7 +577,6 @@ const Table = (props: TableProps) => {
   const [rowToInsert, setRowToInsert] = useState(null);
   const [selection, setSelection] = useState(props.selection ?? []);
   const [sidebarFilterHidden, setSidebarFilterHidden] = useState(false);
-  const [showAsPlainTable, setShowAsPlainTable] = useState(false);
   const [tableUpdateIteration, setTableUpdateIteration] = useState(0);
   const [tag, setTag] = useState(props.tag ?? '');
   const [uid, setUid] = useState(props.uid ?? '_table_' + uuid.v4().replace('-', '_'));
@@ -1042,6 +1041,16 @@ const Table = (props: TableProps) => {
     else return renderDefaultRecords();
   }
 
+  const renderCard = (record: any, cardIndex: number): React.JSX.Element => {
+    if (props.renderCard) return props.renderCard(myself, record, cardIndex);
+    else return renderDefaultCard(record, cardIndex);
+  }
+
+  const renderListItem = (record: any, itemIndex: number): React.JSX.Element => {
+    if (props.renderListItem) return props.renderListItem(myself, record, itemIndex);
+    else return renderDefaultListItem(record, itemIndex);
+  }
+
   const renderContent = (): React.JSX.Element => {
     if (props.renderContent) return props.renderContent(myself);
     else return renderDefaultContent();
@@ -1078,16 +1087,6 @@ const Table = (props: TableProps) => {
         type: 'onclick',
         onClick: () => {
           setSidebarFilterHidden(!sidebarFilterHidden);
-        }
-      },
-      showAsPlainTable: {
-        title: (showAsPlainTable ?
-          T.translate('Show as standard table')
-          : T.translate('Show as plain table')),
-        icon: 'fas fa-table',
-        type: 'onclick',
-        onClick: () => {
-          setShowAsPlainTable(!showAsPlainTable);
         }
       },
       showColumnConfigScreen: {
@@ -1168,14 +1167,12 @@ const Table = (props: TableProps) => {
   }
 
   const renderDefaultReloadButton = (): React.JSX.Element => {
-    return (
-      <button
-        className="btn btn-transparent"
-        onClick={() => reload()}
-      >
-        <span className="icon"><i className="fas fa-arrow-rotate-left"></i></span>
-      </button>
-    );
+    return <button
+      className="btn btn-transparent"
+      onClick={() => reload()}
+    >
+      <span className="icon"><i className="fas fa-arrow-rotate-left"></i></span>
+    </button>;
   }
 
   const renderDefaultHeaderButtons = (): React.JSX.Element => {
@@ -1251,6 +1248,34 @@ const Table = (props: TableProps) => {
 
     if (showReloadButton) buttons.push(renderReloadButton());
     if (showMoreActionsButton) buttons.push(renderMoreActionsButton());
+
+    buttons.push(<div className='btn-group'>
+      <button
+        className={'btn ' + (view != 'plain-table' && view != 'cards' && view != 'list' ? 'btn-primary' : 'btn-transparent')}
+        onClick={() => { setView(''); }}
+      >
+        <span className="icon"><i className="fas fa-table"></i></span>
+      </button>
+      {props.renderCard ? <button
+        className={'btn ' + (view == 'cards' ? 'btn-primary' : 'btn-transparent')}
+        onClick={() => { setView('cards'); }}
+      >
+        <span className="icon"><i className="fas fa-table-cells-large"></i></span>
+      </button> : null}
+      {props.renderListItem ? <button
+        className={'btn ' + (view == 'list' ? 'btn-primary' : 'btn-transparent')}
+        onClick={() => { setView('list'); }}
+      >
+        <span className="icon"><i className="fas fa-list"></i></span>
+      </button> : null}
+      <button
+        className={'btn ' + (view == 'plain-table' ? 'btn-primary' : 'btn-transparent')}
+        onClick={() => { setView('plain-table'); }}
+      >
+        <span className="icon"><i className="fas fa-file-lines"></i></span>
+      </button>
+     
+    </div>);
     return <>{buttons.map((button) => button)}</>;
   }
 
@@ -1754,7 +1779,7 @@ const Table = (props: TableProps) => {
         const itemsTo = data?.to ?? 0;
         const itemsTotal = data?.total ?? 0;
 
-        if (showAsPlainTable) {
+        if (view == 'plain-table') {
           return <table className='table-default dense'>
             <thead>
               <tr>
@@ -1778,6 +1803,18 @@ const Table = (props: TableProps) => {
               })}
             </tbody>
           </table>;
+        } else if (view == 'cards') {
+          return <div className='flex flex-wrap'>
+            {records.map((row, rowIndex) => {
+              return renderCard(row, rowIndex);
+            })}
+          </div>;
+        } else if (view == 'list') {
+          return <div className='btn-list rounded'>
+            {records.map((row, rowIndex) => {
+              return renderListItem(row, rowIndex);
+            })}
+          </div>;
         } else {
           let previousPages: any = [];
           for (let i = Math.max(currentPage - 5, 1); i < currentPage; i++) previousPages.push(i);
@@ -1936,6 +1973,24 @@ const Table = (props: TableProps) => {
         }
       break;
     }
+  }
+
+  const renderDefaultCard = (record: any, cardIndex: number): React.JSX.Element => {
+    return <div className='card'>
+      <div className='card-header'>{cardIndex}</div>
+      <div className='card-body'>
+        This is default card renderer. Create your own and place it in table props.
+      </div>
+    </div>;
+  }
+
+  const renderDefaultListItem = (record: any, itemIndex: number): React.JSX.Element => {
+    return <div className='btn btn-transparent btn-list-item'>
+      <span className='icon'>{itemIndex}</span>
+      <span className='text'>
+        This is default list renderer. Create your own and place it in table props.
+      </span>
+    </div>;
   }
 
   const renderDefaultCsvExportForm = (): React.JSX.Element => {
@@ -2171,6 +2226,8 @@ const Table = (props: TableProps) => {
     renderDefaultRecordsAsTree,
     renderDefaultRecords,
     renderDefaultContent,
+    renderDefaultCard,
+    renderDefaultListItem,
   };
 
   if (!data) return <div className='w-full h-full p-4 m-auto'><Spinner>Loading data, please wait.</Spinner></div>;

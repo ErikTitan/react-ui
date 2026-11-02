@@ -6,7 +6,7 @@ import Translator from '@hubleto/react-ui/core/Translator';
 
 export interface FileInputProps extends InputProps {
   acceptType?: Array<string>,
-  uploadButtonText?: string,
+  browseButtonText?: string,
 }
 
 const T = new Translator('Hubleto\\ReactUi', 'Components\\Inputs\\File');
@@ -44,6 +44,7 @@ const getFileSize = (input: any): number => {
 const onFileChange = (input: any, files: Array<any>) => {
   const file: any = files[0];
   const newValue = {
+    changed: true,
     fileName: file ? file.file.name : null,
     fileData: file ? file.fileData : null,
     fileSize: file ? (parseInt(file.file.size) ?? 0) : null,
@@ -101,8 +102,8 @@ export const InputComponent = (props: FileInputProps) => {
               onClick={onImageUpload}
               {...dragProps}
             >
-              <span className="icon"><i className="fas fa-cloud-arrow-up"></i></span>
-              <span className="text">{T.translate(props.uploadButtonText ?? 'Upload file')}</span>
+              <span className="icon"><i className="fas fa-magnifying-glass"></i></span>
+              <span className="text">{T.translate(props.browseButtonText ?? 'Browse')}</span>
             </button>
           </div>
         )}

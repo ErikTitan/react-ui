@@ -46,7 +46,6 @@ export interface TableUi {
   showAddButton?: boolean,
   showFulltextSearch?: boolean,
   showColumnSearch?: boolean,
-  showAsPlainTable?: boolean,
   showInsertRow?: boolean,
   emptyMessage?: any,
   filters?: any,
@@ -170,6 +169,8 @@ export interface TableProps {
   renderActionsColumn?: (table: TableMeta, row: any) => any,
   renderRecordsAsTree?: (table: TableMeta, nodes: any, idParent: number, level: number) => React.JSX.Element,
   renderRecords?: (table: TableMeta) => any,
+  renderCard?: (table: TableMeta, record: any, cardIndex: number) => any,
+  renderListItem?: (table: TableMeta, record: any, itemIndex: number) => any,
   renderContent?: (table: TableMeta) => any,
   renderCsvExportForm?: (table: TableMeta) => any,
 
@@ -262,5 +263,7 @@ export interface TableMeta {
   renderDefaultActionsColumn: (row: any) => React.JSX.Element,
   renderDefaultRecordsAsTree: (nodes: any, idParent: number, level: number) => React.JSX.Element,
   renderDefaultRecords: () => React.JSX.Element,
+  renderDefaultCard: (record: any, cardIndex: number) => React.JSX.Element,
+  renderDefaultListItem: (record: any, itemIndex: number) => React.JSX.Element,
   renderDefaultContent: () => React.JSX.Element,
 }
