@@ -495,7 +495,7 @@ const Form = (props: FormProps) => {
       { ...getEndpointParams(), record: recordToSave },
       {},
       (saveResponse: any) => {
-        if (creatingRecord && parentTable) {
+        if (creatingRecord && parentTable && !parentTable.props?.parentForm) {
           parentTable.setRecordFormUrl(saveResponse.savedRecord?.id);
         }
 

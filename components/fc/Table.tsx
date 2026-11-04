@@ -740,11 +740,14 @@ const Table = (props: TableProps) => {
 
   const setRecordFormUrl = (id: number) => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (!props.parentForm && !props.baseUrlSlug) {
+
+    if (props.parentForm) return;
+
+    if (props.baseUrlSlug) {
+      window.history.pushState({}, "", globalThis.hubleto.config.projectUrl + '/' + props.baseUrlSlug + '/' + (id > 0 ? id : 'add'));
+    } else {
       urlParams.set('recordId', id.toString());
       window.history.pushState({}, "", '?' + urlParams.toString());
-    } else {
-      window.history.pushState({}, "", globalThis.hubleto.config.projectUrl + '/' + props.baseUrlSlug + '/' + (id > 0 ? id : 'add'));
     }
   }
 
@@ -1785,7 +1788,6 @@ const Table = (props: TableProps) => {
               <tr>
                 {columnKeys.map((colName, columnIndex) => {
                   const column = description?.columns[colName];
-                  console.log(column);
                   return <th className='border-none'>{column?.title}</th>;
                 })}
               </tr>
